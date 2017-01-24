@@ -14,6 +14,14 @@ var gzip = require('mz/zlib').gzip;
 
 var app = module.exports = koa();
 
-app.use(function* () {
+app.use(function* (next) {
+    if (!this.request.acceptsEncodings('gzip')) return yield* next;
+    this.response.set('Content-Encoding', 'gzip')
+    this.response.body = yield gzip('hello world')
+})
 
+app.use(function* (next) {
+    if (!this.request.acceptsEncodings('identity')) return yield* next;
+    this.response.set('Content-Encoding', 'identity')
+    this.response.body = 'hello world'
 })
